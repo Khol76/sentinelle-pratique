@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Résultat — Sentinelle Web</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header class="bandeau">
+        <h1>🛡️ Résultat de l'analyse</h1>
+        <p>Analyseur de liens suspects — HackDécouverte 2026</p>
+    </header>
+
+    <main class="carte">
+        <p>Adresse analysée : <strong>{{ url }}</strong></p>
+
+        <div class="boite {{ couleur }}">
+            <div class="score">{{ score }} / 100</div>
+            <div>{{ verdict }}</div>
+        </div>
+
+        <h2>Pourquoi ce score ?</h2>
+        <ul>
+            {% for raison in raisons %}
+            <li>{{ raison }}</li>
+            {% endfor %}
+        </ul>
+
+        {% if historique %}
+        <h2>🧾 Tes analyses de cette session ({{ historique|length }})</h2>
+        <div>
+            {% for entree in historique %}
+            <p class="entree-historique">
+                <span class="pastille {{ entree.couleur }}">{{ entree.score }}</span>
+                {{ entree.url }} — {{ entree.verdict }}
+            </p>
+            {% endfor %}
+        </div>
+        <p><a href="/effacer-historique">Effacer l'historique</a></p>
+        {% endif %}
+
+        <p><a href="/">← Analyser une autre adresse</a></p>
+    </main>
+</body>
+</html>

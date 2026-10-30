@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <title>Sentinelle Web — Analyseur de liens suspects</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+<body>
+    <header class="bandeau">
+        <h1>🛡️ Sentinelle Web</h1>
+        <p>Analyseur de liens suspects — HackDécouverte 2026</p>
+    </header>
+
+    <main class="carte">
+        <p>Colle une adresse web suspecte et on te dit si elle présente des signaux d'hameçonnage.</p>
+        <form action="/analyser" method="post">
+            <input type="text" name="url" placeholder="https://exemple.com/lien-suspect" required>
+            <button type="submit">Analyser</button>
+        </form>
+    </main>
+</body>
+</html>
