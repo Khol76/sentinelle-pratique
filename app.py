@@ -77,7 +77,11 @@ def analyser_url(url):
 
     # Si l'utilisateur n'a pas mis de schéma (http/https), on en ajoute un
     # pour que urlparse puisse bien découper l'adresse.
-    url_analysee = url if "://" in url else "http://" + url
+    # On ajoute « https:// » (comme les navigateurs modernes quand on tape
+    # juste « yahoo.fr ») : seul un « http:// » écrit explicitement est
+    # pénalisé. On enlève aussi les espaces d'un copier-coller.
+    url = url.strip()
+    url_analysee = url if "://" in url else "https://" + url
     morceaux = urlparse(url_analysee)
     domaine = morceaux.hostname or ""   # ex. "www.paypa1.com" (sans le chemin)
 
@@ -132,6 +136,55 @@ def analyser_url(url):
     return max(score, 0), raisons
 
 
+def details_url(url):
+    """Retourne une fiche d'informations sur l'adresse (affichée sur la page
+    de résultat), et l'adresse « sûre » vers laquelle on peut continuer.
+    Toujours une analyse TEXTUELLE : on ne visite jamais le site."""
+    url = url.strip()
+    url_complete = url if "://" in url else "https://" + url
+    morceaux = urlparse(url_complete)
+    domaine = morceaux.hostname or ""
+
+    est_ip = False
+    if domaine:
+        try:
+            ipaddress.ip_address(domaine)
+            est_ip = True
+        except ValueError:
+            pass
+
+    morceaux_domaine = domaine.split(".") if domaine else []
+    marque = marque_imitee(domaine)
+
+    # .port lève une erreur si le port n'est pas un nombre (ex. « site.com:abc »)
+    try:
+        port = str(morceaux.port) if morceaux.port else "par défaut"
+    except ValueError:
+        port = "invalide ⚠️"
+
+    fiche = [
+        ("Adresse complète", url_complete),
+        ("Protocole", morceaux.scheme.upper() if morceaux.scheme else "inconnu"),
+        ("Connexion chiffrée", "Oui 🔒" if morceaux.scheme == "https" else "Non ⚠️"),
+        ("Domaine", domaine or "introuvable"),
+        ("Domaine principal", ".".join(morceaux_domaine[-2:]) if len(morceaux_domaine) >= 2 and not est_ip else "—"),
+        ("Extension (TLD)", "." + morceaux_domaine[-1] if morceaux_domaine and not est_ip else "—"),
+        ("Nombre de morceaux de domaine", str(len(morceaux_domaine))),
+        ("Adresse IP au lieu d'un nom", "Oui ⚠️" if est_ip else "Non"),
+        ("Port", str(morceaux.port) if morceaux.port else "par défaut"),
+        ("Chemin", morceaux.path or "/"),
+        ("Paramètres", morceaux.query or "aucun"),
+        ("Contient un « @ »", "Oui ⚠️" if "@" in url else "Non"),
+        ("Longueur de l'adresse", str(len(url)) + " caractères"),
+        ("Marque imitée", marque if marque else "aucune détectée"),
+    ]
+
+    # On ne propose de continuer que vers une adresse web classique
+    # (http/https) avec un domaine : jamais « javascript: », « file: », etc.
+    lien_sur = url_complete if morceaux.scheme in ("http", "https") and domaine else None
+    return fiche, lien_sur
+
+
 def verdict_pour(score):
     """Traduit le score en verdict + couleur d'affichage."""
     if score >= 80:
@@ -153,6 +206,7 @@ def analyser():
     url = request.form["url"]          # le champ nommé "url" du formulaire
     score, raisons = analyser_url(url)  # notre logique Python ordinaire
     verdict, couleur = verdict_pour(score)
+    fiche, lien_sur = details_url(url)
     # Mission 3 — la nouvelle analyse va EN PREMIER, max 10 entrées,
     # et on RÉASSIGNE la liste complète (le piège expliqué plus haut).
     historique = session.get("historique", [])
@@ -162,6 +216,7 @@ def analyser():
 
     return render_template("resultat.html", url=url, score=score,
                            raisons=raisons, verdict=verdict, couleur=couleur,
+                           fiche=fiche, lien_sur=lien_sur,
                            historique=session["historique"])
 
 @app.route("/effacer-historique")

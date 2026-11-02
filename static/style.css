@@ -71,6 +71,30 @@ a { color: var(--marine-clair); }
 .pastille.rouge { background-color: var(--rouge); }
 .entree-historique { margin: 6px 0; word-break: break-all; }
 
+/* Jauge de fiabilité */
+.jauge { background: rgba(255, 255, 255, 0.3); border-radius: 6px; height: 10px; margin-top: 10px; overflow: hidden; }
+.jauge-remplie { background: #fff; height: 100%; }
+
+/* Fiche d'informations du site */
+.fiche { width: 100%; border-collapse: collapse; font-size: 15px; }
+.fiche th, .fiche td { padding: 8px 10px; border-bottom: 1px solid #e3e7ec; text-align: left; vertical-align: top; }
+.fiche th { width: 40%; color: var(--marine-clair); font-weight: 600; }
+.fiche td { word-break: break-all; }
+.fiche tr:nth-child(even) { background-color: #f8f9fb; }
+
+/* Question « continuer ? » */
+.question { margin-top: 24px; padding: 16px 20px; border-radius: var(--rayon); border-left: 6px solid var(--marine); background: #f8f9fb; }
+.question.vert { border-left-color: var(--vert); }
+.question.orange { border-left-color: var(--orange); }
+.question.rouge { border-left-color: var(--rouge); background: #fdf0ee; }
+.question h2 { margin-top: 0; }
+.choix { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 12px; }
+.bouton { display: inline-block; padding: 12px 22px; border-radius: var(--rayon); font-weight: bold; text-decoration: none; }
+.bouton-oui { background-color: var(--or); color: var(--marine); }
+.question.rouge .bouton-oui { background-color: #ccc; color: #555; }
+.bouton-non { background-color: var(--marine); color: #fff; }
+.bouton-desactive { background-color: #ddd; color: #888; cursor: not-allowed; }
+
 @media (max-width: 600px) {
     .bandeau, .carte { padding: 16px; }
     .score { font-size: 36px; }

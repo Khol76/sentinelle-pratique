@@ -17,8 +17,19 @@
 
         <div class="boite {{ couleur }}">
             <div class="score">{{ score }} / 100</div>
-            <div>{{ verdict }}</div>
+            <div>Fiabilité : {{ verdict }}</div>
+            <div class="jauge"><div class="jauge-remplie" style="width: {{ score }}%"></div></div>
         </div>
+
+        <h2>📋 Informations sur le site</h2>
+        <table class="fiche">
+            {% for libelle, valeur in fiche %}
+            <tr>
+                <th>{{ libelle }}</th>
+                <td>{{ valeur }}</td>
+            </tr>
+            {% endfor %}
+        </table>
 
         <h2>Pourquoi ce score ?</h2>
         <ul>
@@ -26,6 +37,29 @@
             <li>{{ raison }}</li>
             {% endfor %}
         </ul>
+
+        <div class="question {{ couleur }}">
+            <h2>❓ Veux-tu continuer vers ce site ?</h2>
+            {% if couleur == "rouge" %}
+            <p><strong>⚠️ Attention :</strong> ce site présente de nombreux signaux d'hameçonnage. Nous te déconseillons fortement de continuer.</p>
+            {% elif couleur == "orange" %}
+            <p>Ce site présente quelques signaux suspects. Continue seulement si tu es sûr de sa provenance.</p>
+            {% else %}
+            <p>Aucun signal majeur détecté, mais reste vigilant.</p>
+            {% endif %}
+
+            <div class="choix">
+                {% if lien_sur %}
+                <a class="bouton bouton-oui" href="{{ lien_sur }}" target="_blank" rel="noopener noreferrer"
+                   {% if couleur != "vert" %}onclick="return confirm('Ce site est jugé « {{ verdict }} » ({{ score }}/100). Continuer quand même ?');"{% endif %}>
+                    Oui, continuer
+                </a>
+                {% else %}
+                <span class="bouton bouton-desactive" title="Adresse non valide">Oui, continuer (impossible)</span>
+                {% endif %}
+                <a class="bouton bouton-non" href="/">Non, revenir à l'accueil</a>
+            </div>
+        </div>
 
         {% if historique %}
         <h2>🧾 Tes analyses de cette session ({{ historique|length }})</h2>
